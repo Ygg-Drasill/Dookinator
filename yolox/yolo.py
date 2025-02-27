@@ -1,40 +1,43 @@
 from ultralytics import YOLO
 import torch
+import numpy as np
 
 CONFIDENCE_THRESHOLD = 0.4
+REFEREE_CLASS_ID = 3
 
-def init_yolo():
-    # Ensure PyTorch is using the GPU
+
+def init_yolo(model_path: str = "yolov8n-football.pt") -> YOLO:
+    """Initialize the YOLO model with GPU support if available."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    # Load YOLO model on GPU
-    return YOLO("yolov8n.pt").to(device)
+    return YOLO(model_path).to(device)
 
-def read_frame(model, frame):
-    # run the YOLO model on the frame
-    detections = model(frame)[0]
 
-    # initialize the list of bounding boxes and confidences
+def read_frame(model: YOLO, frame: np.ndarray) -> list:
+    """Process a frame using the YOLO model and filter detections.
+
+    Args:
+        model (YOLO): The YOLO model instance.
+        frame (np.ndarray): The input image/frame.
+
+    Returns:
+        list: Filtered detections in the format [[x, y, w, h], confidence, class_id].
+    """
+    detections = model(frame)[0].boxes.data.tolist()
+
     results = []
+    for detection in detections:
+        xmin, ymin, xmax, ymax, confidence, class_id = detection
 
-    ######################################
-    # DETECTION
-    ######################################
-
-    # loop over the detections
-    for data in detections.boxes.data.tolist():
-        # extract the confidence (i.e., probability) associated with the prediction
-        confidence = data[4]
-
-        # filter out weak detections by ensuring the
-        # confidence is greater than the minimum confidence
+        # Filter out weak detections with low confidence
         if float(confidence) < CONFIDENCE_THRESHOLD:
             continue
 
-        # if the confidence is greater than the minimum confidence,
-        # get the bounding box and the class id
-        xmin, ymin, xmax, ymax = int(data[0]), int(data[1]), int(data[2]), int(data[3])
-        class_id = int(data[5])
-        # add the bounding box (x, y, w, h), confidence and class id to the results list
-        results.append([[xmin, ymin, xmax - xmin, ymax - ymin], confidence, class_id])
+        # Get the bounding box and the class id
+        bbox = [int(xmin), int(ymin), int(xmax - xmin), int(ymax - ymin)]
+        class_id = int(class_id)
+
+        # Apply confidence threshold and filter out referees
+        if class_id != REFEREE_CLASS_ID:
+            results.append([bbox, confidence, class_id])
 
     return results

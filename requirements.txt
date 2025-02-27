@@ -1,4 +1,6 @@
 datetime
 opencv_python
+omegaconf
+numpy
 torch>=1.7
 ultralytics
