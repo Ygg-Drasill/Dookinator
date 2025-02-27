@@ -1,0 +1,4 @@
+datetime
+opencv_python
+torch>=1.7
+ultralytics
