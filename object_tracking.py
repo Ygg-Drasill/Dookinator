@@ -1,28 +1,16 @@
 import datetime
 import cv2
-from helper import create_video_writer
 from deep_sort_realtime.deepsort_tracker import DeepSort
 
 from ultralytics import YOLO
 import torch
-import torchvision
-
-print(torch.__version__)   # Should still be 2.6.0+cu118
-print(torchvision.__version__)  # Should now match (e.g., 0.21.0+cu118)
-print(torch.cuda.is_available())  # Should return True
-
-import torchvision.ops
-print(torchvision.ops.nms)  # Should not throw an error
-
 
 CONFIDENCE_THRESHOLD = 0.4
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 
 # initialize the video capture object
-video_cap = cv2.VideoCapture("2.mp4")
-# initialize the video writer object
-writer = create_video_writer(video_cap, "output.mp4")
+video_cap = cv2.VideoCapture("full.mp4")
 
 # Ensure PyTorch is using the GPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -103,10 +91,8 @@ while True:
 
     # show the frame to our screen
     cv2.imshow("Frame", frame)
-    writer.write(frame)
     if cv2.waitKey(1) == ord("q"):
         break
 
 video_cap.release()
-writer.release()
 cv2.destroyAllWindows()
