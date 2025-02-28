@@ -11,7 +11,8 @@ WHITE = (255, 255, 255)
 # initialize the video capture object
 video_cap = cv2.VideoCapture("full.mp4")
 
-tracker = sv.ByteTrack(track_activation_threshold=0.5, lost_track_buffer=25)
+
+tracker = sv.ByteTrack(track_activation_threshold=0.25, lost_track_buffer=50, minimum_matching_threshold=0.8, frame_rate=25, minimum_consecutive_frames=1)
 box_annotator = sv.BoxAnnotator()
 label_annotator = sv.LabelAnnotator()
 
