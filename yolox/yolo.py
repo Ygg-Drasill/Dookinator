@@ -22,22 +22,8 @@ def read_frame(model: YOLO, frame: np.ndarray) -> list:
     Returns:
         list: Filtered detections in the format [[x, y, w, h], confidence, class_id].
     """
-    detections = model(frame)[0].boxes.data.tolist()
+    results = model(frame)[0]  # Return the first result (not a list)
 
-    results = []
-    for detection in detections:
-        xmin, ymin, xmax, ymax, confidence, class_id = detection
 
-        # Filter out weak detections with low confidence
-        if float(confidence) < CONFIDENCE_THRESHOLD:
-            continue
 
-        # Get the bounding box and the class id
-        bbox = [int(xmin), int(ymin), int(xmax - xmin), int(ymax - ymin)]
-        class_id = int(class_id)
-
-        # Apply confidence threshold and filter out referees
-        if class_id != REFEREE_CLASS_ID:
-            results.append([bbox, confidence, class_id])
-
-    return results
+    return results  # Keep the original result object
