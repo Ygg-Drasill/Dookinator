@@ -250,3 +250,5 @@ fabric.properties
 
 # PyPI configuration file
 .pypirc
+*.mp4
+*.pt
