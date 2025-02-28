@@ -5,9 +5,6 @@ import supervision as sv
 from byteTrack.byte_track import filter_detections
 from yolox.yolo import init_yolo, read_frame
 
-GREEN = (0, 255, 0)
-WHITE = (255, 255, 255)
-
 # initialize the video capture object
 video_cap = cv2.VideoCapture("full.mp4")
 
