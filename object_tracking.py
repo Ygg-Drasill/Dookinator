@@ -11,6 +11,7 @@ with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)  # Read the file once
     video = config['video']
     byte_track = config['byte_track']
+    yolo = config['yolo']
 
 # initialize the video capture object
 video_cap = cv2.VideoCapture(video)
@@ -20,7 +21,7 @@ tracker = sv.ByteTrack(byte_track['track_activation_threshold'], byte_track['los
 box_annotator = sv.BoxAnnotator()
 label_annotator = sv.LabelAnnotator()
 
-model = init_yolo()
+model = init_yolo(yolo['model'])
 
 while True:
     start = datetime.datetime.now()
