@@ -2,11 +2,16 @@ video: "full.mp4"
 
 yolo:
   model: "yolov8n-football.pt"
-  confidence_threshold: 0.5
   selected_class_ids:
-    ball: 0
-    goalkeeper: 1
-    player: 2
+    ball:
+      id: 0
+      confidence_threshold: 0.1
+    goalkeeper:
+      id: 1
+      confidence_threshold: 0.5
+    player:
+      id: 2
+      confidence_threshold: 0.5
 
 
 byte_track:

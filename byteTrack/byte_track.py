@@ -6,9 +6,6 @@ with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)  # Read the file once
     yolo = config['yolo']
 
-selected_classes = [0, 1, 2]
-min_confidence = 0.5
-
 def filter_detections(detections: Detections) -> Detections:
     """Filter detections based on detection confidence and class id.
 
@@ -18,8 +15,17 @@ def filter_detections(detections: Detections) -> Detections:
         Returns:
             Detections: Filtered detections.
         """
-    detections = detections[np.isin(detections.class_id, list(yolo['selected_class_ids'].values()))]
+    class_ids = [item["id"] for item in yolo["selected_class_ids"].values()]
 
-    detections = detections[detections.confidence >= yolo['confidence_threshold']]
+    detections = detections[np.isin(detections.class_id, class_ids)]
+
+    detections = detections[
+        ((detections.confidence >= yolo["selected_class_ids"]['ball']['confidence_threshold']) | (
+                    detections.class_id != 0)) &
+        ((detections.confidence >= yolo["selected_class_ids"]['goalkeeper']['confidence_threshold']) | (
+                    detections.class_id != 1)) &
+        ((detections.confidence >= yolo["selected_class_ids"]['player']['confidence_threshold']) | (
+                    detections.class_id != 2))
+        ]
 
     return detections
