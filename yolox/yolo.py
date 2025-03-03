@@ -3,12 +3,12 @@ import torch
 import numpy as np
 from ultralytics.engine.results import Results
 
-CONFIDENCE_THRESHOLD = 0.4
-REFEREE_CLASS_ID = 3
-
-
-def init_yolo(model_path: str = "yolov8n-football.pt") -> YOLO:
+def init_yolo(model_path: str = "yolov8n.pt") -> YOLO:
     """Initialize the YOLO model with GPU support if available."""
+
+    if not model_path:
+        model_path = "yolov8n.pt"
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     return YOLO(model_path).to(device)
 
@@ -25,4 +25,4 @@ def read_frame(model: YOLO, frame: np.ndarray) -> Results:
     """
     results = model(frame)[0]  # Return the first result
 
-    return results  # Keep the original result object
+    return results

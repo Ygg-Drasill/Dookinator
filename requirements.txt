@@ -7,4 +7,4 @@ ultralytics~=8.3.80
 
 opencv-python~=4.11.0.86
 supervision~=0.25.1
-yolox~=0.1.0
+PyYAML~=6.0.2

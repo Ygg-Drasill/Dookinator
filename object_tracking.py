@@ -1,22 +1,27 @@
 import datetime
+import yaml
+
 import cv2
 import supervision as sv
 
 from byteTrack.byte_track import filter_detections
 from yolox.yolo import init_yolo, read_frame
 
-GREEN = (0, 255, 0)
-WHITE = (255, 255, 255)
+with open('config.yaml', 'r') as file:
+    config = yaml.safe_load(file)  # Read the file once
+    video = config['video']
+    byte_track = config['byte_track']
+    yolo = config['yolo']
 
 # initialize the video capture object
-video_cap = cv2.VideoCapture("full.mp4")
+video_cap = cv2.VideoCapture(video)
 
 
-tracker = sv.ByteTrack(track_activation_threshold=0.25, lost_track_buffer=50, minimum_matching_threshold=0.8, frame_rate=25, minimum_consecutive_frames=1)
+tracker = sv.ByteTrack(byte_track['track_activation_threshold'], byte_track['lost_track_buffer'], byte_track['minimum_matching_threshold'], byte_track['frame_rate'], byte_track['minimum_consecutive_frames'])
 box_annotator = sv.BoxAnnotator()
 label_annotator = sv.LabelAnnotator()
 
-model = init_yolo()
+model = init_yolo(yolo['model'])
 
 while True:
     start = datetime.datetime.now()
@@ -37,7 +42,7 @@ while True:
 
     detections = filter_detections(detections)
 
-    # Create labels with class names and tracker IDs
+    # Create labels with tracker IDs
     labels = [
         f"#{tracker_id[0]}"
         for tracker_id
