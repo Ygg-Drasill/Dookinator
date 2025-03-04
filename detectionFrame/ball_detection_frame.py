@@ -1,9 +1,7 @@
 import numpy as np
 
-
-
 class BallDetectionFrame:
-    def __init__(self, xyz: np.array, speed: float):
+    def __init__(self, xyz: np.ndarray, speed: float):
         self.xyz = np.array(xyz)  # Ensuring input is a NumPy array
         self.speed = speed
         pass
