@@ -30,5 +30,5 @@ class GameDetectionFrame:
             "away_players": [player.to_dict() for player in self.away_players],
             "ball": self.ball.to_dict() if self.ball else None,
             "live": self.live,
-            "last_touch": self.last_touch
+            "last_touch": self.last_touch.name
         }
