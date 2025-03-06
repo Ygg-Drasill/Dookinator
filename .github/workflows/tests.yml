@@ -26,4 +26,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest . --capture=no
+          pytest Test/ --capture=no
