@@ -20,5 +20,3 @@ def test_homography():
     assert difference < 0.05
 
 
-if __name__ == '__main__':
-    homographyTest()
