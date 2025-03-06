@@ -5,6 +5,7 @@ import cv2
 import supervision as sv
 
 from byteTrack.byte_track import filter_detections
+from player_separation import player_separation
 from yolox.yolo import init_yolo, read_frame
 
 with open('config.yaml', 'r') as file:
@@ -41,6 +42,7 @@ while True:
     detections = tracker.update_with_detections(detections)
 
     detections = filter_detections(detections)
+    player_colors = player_separation(frame, detections.xyxy)
 
     # Create labels with tracker IDs
     labels = [
