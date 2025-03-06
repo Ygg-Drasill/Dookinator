@@ -2,10 +2,10 @@ import numpy as np
 import yaml
 from supervision import Detections
 
-from detectionFrame.ball_detection_frame import BallDetectionFrame
-from detectionFrame.detectionsVariablesCalculator.detection_location import get_screen_location_of_bounding_box
-from detectionFrame.game_detection_frame import GameDetectionFrame, LastTouch
-from detectionFrame.player_detection_frame import PlayerDetectionFrame
+from DetectionFrame.ball_detection_frame import BallDetectionFrame
+from DetectionFrame.DetectionsVariablesCalculator.detection_location import get_screen_location_of_bounding_box
+from DetectionFrame.game_detection_frame import GameDetectionFrame, LastTouch
+from DetectionFrame.player_detection_frame import PlayerDetectionFrame
 
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)  # Read the file once

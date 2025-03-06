@@ -5,7 +5,7 @@ import cv2
 import supervision as sv
 
 from byteTrack.byte_track import filter_detections
-from detectionFrame.calculate_frame import calculate_detection_frame
+from DetectionFrame.calculate_frame import calculate_detection_frame
 from yolox.yolo import init_yolo, read_frame
 
 with open('config.yaml', 'r') as file:
