@@ -4,8 +4,10 @@ import yaml
 import cv2
 import supervision as sv
 
-from ByteTrack.byte_track import filter_detections
-from Yolox.yolo import init_yolo, read_frame
+from byteTrack.byte_track import filter_detections
+from DetectionFrame.calculate_frame import calculate_detection_frame
+from yolox.yolo import init_yolo, read_frame
+
 
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)  # Read the file once
@@ -23,6 +25,8 @@ label_annotator = sv.LabelAnnotator()
 
 model = init_yolo(yolo['model'])
 
+frame_count = 0
+
 while True:
     start = datetime.datetime.now()
 
@@ -38,9 +42,12 @@ while True:
     ######################################
 
     detections = sv.Detections.from_ultralytics(results)
-    detections = tracker.update_with_detections(detections)
 
     detections = filter_detections(detections)
+
+    detections = tracker.update_with_detections(detections)
+
+    detection_frame = calculate_detection_frame(detections, frame_count)
 
     # Create labels with tracker IDs
     labels = [
@@ -60,5 +67,8 @@ while True:
     if cv2.waitKey(1) == ord("q"):
         break
 
+    frame_count += 1
+
+    pass
 video_cap.release()
 cv2.destroyAllWindows()
