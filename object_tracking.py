@@ -4,9 +4,11 @@ import yaml
 import cv2
 import supervision as sv
 
+
 from byteTrack.byte_track import filter_detections
 from player_separation import player_separation
 from yolox.yolo import init_yolo, read_frame
+
 
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)  # Read the file once
