@@ -4,7 +4,7 @@ from collections import Counter
 from sklearn.cluster import KMeans
 
 
-def player_separation(frame, bboxes):
+def player_separation(frame, bboxes, box_id):
     cropped_images = []
     player_color = []
     bboxes = np.array(bboxes).astype(int)
@@ -17,21 +17,19 @@ def player_separation(frame, bboxes):
         color_tuple = k_means(cropped_image)
         color_name = closest_color(color_tuple)
         player_color.append(color_name)
-
-
-    return player_color
+    print(player_color)
+    print(box_id)
+    id_to_color = dict(zip(box_id, player_color))
+    return id_to_color
 
 def k_means(image, k = 3):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    #image to a list of pixels
     pixels = image.reshape((-1, 3))
 
-    # Apply K-Means clustering
-    kmeans = KMeans(n_clusters=k, random_state=0, n_init=10)
+    kmeans = KMeans(n_clusters=k, random_state=3, n_init=10)
     kmeans.fit(pixels)
 
-    # Get the most common color
     counter = Counter(kmeans.labels_)
     dominant_color_index = max(counter, key=counter.get)
     dominant_color = kmeans.cluster_centers_[dominant_color_index].astype(int)

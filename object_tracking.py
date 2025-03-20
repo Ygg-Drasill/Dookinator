@@ -46,7 +46,7 @@ while True:
     detections = tracker.update_with_detections(detections)
 
     detections = filter_detections(detections)
-    player_colors = player_separation(frame, detections.xyxy)
+    player_colors = player_separation(frame, detections.xyxy, detections.tracker_id)
 
     detections = tracker.update_with_detections(detections)
 
@@ -54,7 +54,7 @@ while True:
 
     # Create labels with tracker IDs
     labels = [
-        f"#{tracker_id[0]}"
+        f"#{tracker_id[0]}+{player_colors[tracker_id[0]]}"
         for tracker_id
         in zip(detections.tracker_id)
     ]
