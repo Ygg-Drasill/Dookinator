@@ -4,8 +4,8 @@ import yaml
 import cv2
 import supervision as sv
 
-from byteTrack.byte_track import filter_detections
-from DetectionFrame.calculate_frame import calculate_detection_frame
+from src.bytetrack.byte_track import filter_detections
+from src.detectionframe.calculate_frame import calculate_detection_frame
 from yolox.yolo import init_yolo, read_frame
 
 

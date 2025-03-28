@@ -1,7 +1,7 @@
 from enum import Enum
 import numpy as np
 
-from DetectionFrame.ball_detection_frame import BallDetectionFrame
+from src.detectionframe.ball_detection_frame import BallDetectionFrame
 
 class LastTouch(Enum):
     Home = 1
