@@ -2,7 +2,9 @@ import yaml
 from supervision import Detections
 import numpy as np
 
-with open('config.yaml', 'r') as file:
+from src.definitions import CONFIG_PATH
+
+with open(CONFIG_PATH, 'r') as file:
     config = yaml.safe_load(file)  # Read the file once
     yolo = config['yolo']
 

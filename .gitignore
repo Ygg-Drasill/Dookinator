@@ -252,3 +252,5 @@ fabric.properties
 .pypirc
 *.mp4
 *.pt
+
+*.jsonl

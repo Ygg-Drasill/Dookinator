@@ -1,13 +1,15 @@
+import os
+
 from ultralytics import YOLO
 import torch
 import numpy as np
 from ultralytics.engine.results import Results
 
-def init_yolo(model_path: str = "new_football_model.pt") -> YOLO:
-    """Initialize the YOLO model with GPU support if available."""
+from src.definitions import ROOT_DIR
 
-    if not model_path:
-        model_path = "new_football_model.pt"
+
+def init_yolo(model_path: str) -> YOLO:
+    """Initialize the YOLO model with GPU support if available."""
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     return YOLO(model_path).to(device)
