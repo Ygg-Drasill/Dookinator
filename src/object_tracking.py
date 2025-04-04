@@ -10,6 +10,7 @@ from src.bytetrack.byte_track import filter_detections
 from src.definitions import ROOT_DIR, CONFIG_PATH
 from src.detectionframe.calculate_frame import calculate_detection_frame
 from src.detectionframe.output_to_jsonl import output_detection_frame
+from src.player_separation import player_separation
 from yolox.yolo import init_yolo, read_frame
 
 
