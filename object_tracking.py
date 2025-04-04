@@ -46,7 +46,7 @@ while True:
     detections = tracker.update_with_detections(detections)
 
     detections = filter_detections(detections)
-    player_colors = player_separation(frame, detections.xyxy, detections.tracker_id)
+    player_colors = player_separation(frame, detections.xyxy, detections.tracker_id, detections.class_id)
 
     detections = tracker.update_with_detections(detections)
 
