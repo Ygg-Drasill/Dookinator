@@ -1,5 +1,7 @@
 video: "full.mp4"
+
 output_jsonl_relative_file_path: "football_output.jsonl"
+real_data_jsonl_relative_file_path: "tracking-produced.jsonl"
 
 yolo:
   model: "yolov8n-football.pt"

@@ -10,6 +10,7 @@ from src.bytetrack.byte_track import filter_detections
 from src.definitions import ROOT_DIR, CONFIG_PATH
 from src.detectionframe.calculate_frame import calculate_detection_frame
 from src.detectionframe.output_to_jsonl import output_detection_frame
+from src.output.visualize_data import visualize_data
 from yolox.yolo import init_yolo, read_frame
 
 
@@ -59,6 +60,8 @@ while True:
     detection_frame = calculate_detection_frame(detections, frame_count)
 
     output_detection_frame(detection_frame, os.path.join(ROOT_DIR, str(jsonl_file_path)))
+
+    visualize_data(detection_frame)
 
     # Create labels with tracker IDs
     labels = [
