@@ -25,7 +25,7 @@ def fieldIdentifier(frame):
     red[:, :, 0] = 0
     red[:, :, 1] = 0
     red2[:, :, 0] = 0
-    red2[:, :, 0] = 0
+    red2[:, :, 1] = 0
 
     sift = cv.SIFT_create()
 
