@@ -10,24 +10,24 @@ from src.bytetrack.byte_track import filter_detections
 from src.definitions import ROOT_DIR, CONFIG_PATH
 from src.detectionframe.calculate_frame import calculate_detection_frame
 from src.detectionframe.output_to_jsonl import output_detection_frame
-from yolox.yolo import init_yolo, read_frame
+from yolox.yolo import SoccerYOLOX
 
 
 with open(CONFIG_PATH, 'r') as file:
     config = yaml.safe_load(file)  # Read the file once
-    video_path = config['video']
+    match = config['match']
     byte_track = config['byte_track']
     yolo = config['yolo']
     jsonl_file_path = config['output_jsonl_relative_file_path']
 
 # initialize the video capture object
-video_cap = cv2.VideoCapture(os.path.join(ROOT_DIR, str(video_path)))
+video_cap = cv2.VideoCapture(os.path.join(ROOT_DIR, str(match["video"])))
 
 tracker = sv.ByteTrack(byte_track['track_activation_threshold'], byte_track['lost_track_buffer'], byte_track['minimum_matching_threshold'], byte_track['frame_rate'], byte_track['minimum_consecutive_frames'])
 box_annotator = sv.BoxAnnotator()
 label_annotator = sv.LabelAnnotator()
 
-model = init_yolo(os.path.join(ROOT_DIR, str(yolo['model'])))
+soccer_YOLOX = SoccerYOLOX(os.path.join(ROOT_DIR, str(yolo['soccer_model'])), os.path.join(ROOT_DIR, str(yolo['keypoint_model'])))
 
 frame_count = 0
 
@@ -44,7 +44,8 @@ while True:
         print("Could not capture video frame.")
         break
 
-    results = read_frame(model, frame)
+    results = soccer_YOLOX.read_frame(frame)
+    keypoints = soccer_YOLOX.find_keypoint(frame)
 
     ######################################
     # TRACKING
@@ -56,7 +57,11 @@ while True:
 
     detections = tracker.update_with_detections(detections)
 
-    detection_frame = calculate_detection_frame(detections, frame_count)
+    ######################################
+    # Output
+    ######################################
+
+    detection_frame = calculate_detection_frame(detections, frame_count, keypoints)
 
     output_detection_frame(detection_frame, os.path.join(ROOT_DIR, str(jsonl_file_path)))
 

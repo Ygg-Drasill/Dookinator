@@ -1,8 +1,13 @@
-video: "full.mp4"
+match:
+  video: "full.mp4"
+  meta_file: "meta.json"
+  tracking_produced: "tracking-produced.jsonl"
+
 output_jsonl_relative_file_path: "football_output.jsonl"
 
 yolo:
-  model: "yolov8n-football.pt"
+  keypoint_model: "keypoint_model.pt"
+  soccer_model: "new_football_model.pt"
   selected_class_ids:
     ball:
       id: 0

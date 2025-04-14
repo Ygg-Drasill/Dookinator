@@ -1,17 +1,46 @@
+import json
+import os
+
 import numpy as np
+import yaml
+import supervision as sv
+from src.definitions import CONFIG_PATH, ROOT_DIR
+from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
+from src.fieldPitch.view import ViewTransformer
 
+with open(CONFIG_PATH, 'r') as file:
+    config = yaml.safe_load(file)  # Read the file once
+    meta_file = config['match']['meta_file']
 
-def get_screen_location_of_bounding_box(xyxy: np.ndarray) -> np.ndarray:
+# Parse the JSON string
+with open(os.path.join(ROOT_DIR, str(meta_file)), 'r') as f:
+    data = json.load(f)
+
+def get_location_of_bounding_box(xy: np.ndarray, keypoints: sv.KeyPoints) -> np.float32:
     """
     Computes the screen location of a bounding box given its (x1, y1, x2, y2) coordinates.
 
     Args:
-        xyxy (np.ndarray): A 1D NumPy array of shape (4,) representing (x1, y1, x2, y2).
+        xy (np.ndarray): A 1D NumPy array of shape (2) representing (x1, x2).
+        keypoints (sv.KeyPoints): The keypoints of the soccer field.
 
     Returns:
-        np.ndarray: A 1D NumPy array with the midpoint x-coordinate and bottom y-coordinate.
+        np.ndarray: A 1D NumPy array with the real position of the player.
     """
-    mid_x = np.mean(xyxy[[0, 2]])  # Average of x1 and x2
-    bottom_y = xyxy[3]
 
-    return np.array([mid_x, bottom_y])
+    pitch_length = data["pitchLength"] * 100
+    pitch_width = data["pitchWidth"] * 100
+
+    soccer_field_config = SoccerPitchConfiguration(pitch_width, pitch_length)
+
+    mask = (keypoints.xy[0][:, 0] > 1) & (keypoints.xy[0][:, 1] > 1)
+    transformer = ViewTransformer(
+        source=keypoints.xy[0][mask].astype(np.float32),
+        target=np.array(soccer_field_config.vertices)[mask].astype(np.float32)
+    )
+
+    xy = np.float32(xy)
+
+    transformed_xy = transformer.transform_points(point=xy)
+
+    return transformed_xy
