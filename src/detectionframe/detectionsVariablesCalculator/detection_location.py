@@ -28,8 +28,8 @@ def get_location_of_bounding_box(xy: np.ndarray, keypoints: sv.KeyPoints) -> np.
         np.ndarray: A 1D NumPy array with the real position of the player.
     """
 
-    pitch_length = data["pitchLength"] * 100
-    pitch_width = data["pitchWidth"] * 100
+    pitch_length = data["pitchLength"]
+    pitch_width = data["pitchWidth"]
 
     soccer_field_config = SoccerPitchConfiguration(pitch_width, pitch_length)
 

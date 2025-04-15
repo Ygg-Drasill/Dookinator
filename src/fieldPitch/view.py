@@ -1,6 +1,5 @@
 #based on https://github.com/roboflow/sports
 
-from typing import Tuple
 import cv2
 import numpy as np
 import numpy.typing as npt
@@ -57,25 +56,3 @@ class ViewTransformer:
 
         transformed_point = cv2.perspectiveTransform(reshaped_point, self.m)
         return transformed_point
-
-    def transform_image(
-            self,
-            image: npt.NDArray[np.uint8],
-            resolution_wh: Tuple[int, int]
-    ) -> npt.NDArray[np.uint8]:
-        """
-        Transform the given image using the homography matrix.
-
-        Args:
-            image (npt.NDArray[np.uint8]): Image to be transformed.
-            resolution_wh (Tuple[int, int]): Width and height of the output image.
-
-        Returns:
-            npt.NDArray[np.uint8]: Transformed image.
-
-        Raises:
-            ValueError: If the image is not either grayscale or color.
-        """
-        if len(image.shape) not in {2, 3}:
-            raise ValueError("Image must be either grayscale or color.")
-        return cv2.warpPerspective(image, self.m, resolution_wh)
