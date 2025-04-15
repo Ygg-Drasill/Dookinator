@@ -5,14 +5,14 @@ from typing import List, Tuple
 
 @dataclass
 class SoccerPitchConfiguration:
-    width: int = 7000  # [cm]
-    length: int = 12000  # [cm]
-    penalty_box_width: int = 4100  # [cm]
-    penalty_box_length: int = 2015  # [cm]
-    goal_box_width: int = 1832  # [cm]
-    goal_box_length: int = 550  # [cm]
-    centre_circle_radius: int = 915  # [cm]
-    penalty_spot_distance: int = 1100  # [cm]
+    width: int = 70  # [m]
+    length: int = 120 # [m]
+    penalty_box_width: int = 41  # [m]
+    penalty_box_length: int = 20.15  # [m]
+    goal_box_width: int = 18.32  # [m]
+    goal_box_length: int = 5.5  # [m]
+    centre_circle_radius: int = 9.15  # [m]
+    penalty_spot_distance: int = 11.00  # [m]
 
     def __init__(self, width, length):
         self.width = width
