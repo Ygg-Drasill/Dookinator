@@ -34,15 +34,25 @@ def mock_vertices():
         [5000.0, 6000.0]
     ]
 
-
-@patch("src.detectionframe.detectionsVariablesCalculator.detection_location.SoccerPitchConfiguration")
 @patch("src.detectionframe.detectionsVariablesCalculator.detection_location.ViewTransformer")
-def test_get_location_of_bounding_box(mock_transformer_class, mock_config_class, mock_keypoints, mock_vertices):
+@patch("src.detectionframe.detectionsVariablesCalculator.detection_location.SoccerPitchConfiguration")
+@patch("src.detectionframe.detectionsVariablesCalculator.detection_location.load_pitch_data")
+def test_get_location_of_bounding_box(
+    mock_load_pitch_data,
+    mock_config_class,
+    mock_transformer_class,
+    mock_keypoints,
+    mock_vertices
+):
+    mock_load_pitch_data.return_value = {
+        "pitchLength": 105,
+        "pitchWidth": 68
+    }
+
     mock_config_instance = MagicMock()
     mock_config_instance.vertices = mock_vertices
     mock_config_instance.pitchLength = 105
     mock_config_instance.pitchWidth = 68
-
     mock_config_class.return_value = mock_config_instance
 
     mock_transformer_instance = MagicMock()
