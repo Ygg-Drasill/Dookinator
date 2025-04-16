@@ -113,8 +113,8 @@ def read_players(players: np.ndarray, image: np.ndarray, color: tuple[int, int, 
     for player in players:
         center_of_circle = player.xyz[:2]
 
-        real_width = np.take(center_of_circle, 0) / football_field_width * width
-        real_height = np.take(center_of_circle, 1) / football_field_height * height
+        real_width = (np.take(center_of_circle, 0) + football_field_width / 2) * width / football_field_width
+        real_height = (np.take(center_of_circle, 1) + football_field_height / 2) * height / football_field_height
 
         new_image = cv2.circle(image, (int(real_width), int(real_height)), radius, color, thickness)
         pass
