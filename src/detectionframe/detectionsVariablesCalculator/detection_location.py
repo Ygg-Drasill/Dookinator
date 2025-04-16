@@ -41,6 +41,9 @@ def get_location_of_bounding_box(xy: np.ndarray, keypoints: sv.KeyPoints) -> np.
 
     xy = np.float32(xy)
 
+    xy[0] = xy[0] - (pitchWidth/2)
+    xy[1] = xy[1] - (pitchLength/2)
+
     transformed_xy = transformer.transform_points(point=xy)
 
     return transformed_xy
