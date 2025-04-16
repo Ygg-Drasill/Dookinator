@@ -1,30 +1,38 @@
 import os
 
+from supervision import KeyPoints
 from ultralytics import YOLO
 import torch
 import numpy as np
 from ultralytics.engine.results import Results
+import supervision as sv
 
-from src.definitions import ROOT_DIR
+class SoccerYOLOX:
 
+    def __init__(self, soccer_model_path: str, keypoint_model_path: str):
+        """Initialize the YOLO models with GPU support if available."""
 
-def init_yolo(model_path: str) -> YOLO:
-    """Initialize the YOLO model with GPU support if available."""
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.soccer_model = YOLO(soccer_model_path).to(device)
+        self.keypoint_model = YOLO(keypoint_model_path).to(device)
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    return YOLO(model_path).to(device)
+    def read_frame(self, frame: np.ndarray) -> Results:
+        """Process a frame using the YOLO soccer model.
 
+        Args:
+            model (YOLO): The YOLO model instance.
+            frame (np.ndarray): The input image/frame.
 
-def read_frame(model: YOLO, frame: np.ndarray) -> Results:
-    """Process a frame using the YOLO model.
+        Returns:
+            Results: Detections of the frame.
+        """
+        results = self.soccer_model(frame)[0]
 
-    Args:
-        model (YOLO): The YOLO model instance.
-        frame (np.ndarray): The input image/frame.
+        return results
 
-    Returns:
-        Results: Detections of the frame.
-    """
-    results = model(frame)[0]  # Return the first result
+    def find_keypoint(self, frame: np.ndarray) -> KeyPoints:
 
-    return results
+        result = self.keypoint_model(frame)[0]
+        keypoints = sv.KeyPoints.from_ultralytics(result)
+
+        return keypoints

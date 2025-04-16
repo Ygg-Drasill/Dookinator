@@ -1,10 +1,10 @@
 import numpy as np
 import yaml
-from supervision import Detections
+from supervision import Detections, KeyPoints
 
 from src.definitions import CONFIG_PATH
 from src.detectionframe.ball_detection_frame import BallDetectionFrame
-from src.detectionframe.DetectionsVariablesCalculator.detection_location import get_screen_location_of_bounding_box
+from src.detectionframe.DetectionsVariablesCalculator.detection_location import get_location_of_bounding_box
 from src.detectionframe.game_detection_frame import GameDetectionFrame, LastTouch
 from src.detectionframe.player_detection_frame import PlayerDetectionFrame
 
@@ -13,7 +13,7 @@ with open(CONFIG_PATH, 'r') as file:
     selected_class_ids = config['yolo']['selected_class_ids']
     frame_rate = config['byte_track']['frame_rate']
 
-def calculate_detection_frame(detections: Detections, frame_idx: int) -> GameDetectionFrame:
+def calculate_detection_frame(detections: Detections, frame_idx: int, keypoints: KeyPoints) -> GameDetectionFrame:
 
     game_clock = frame_idx * (1 / frame_rate)
 
@@ -31,17 +31,32 @@ def calculate_detection_frame(detections: Detections, frame_idx: int) -> GameDet
     for i, class_id in enumerate(detections.class_id):
 
         if class_id == selected_class_ids['ball']['id']:
-            # location is just screen location for now
-            location = get_screen_location_of_bounding_box(detections.xyxy[i])
+
+            bbox = detections.xyxy[i]  # [x1, y1, x2, y2]
+            x1, y1, x2, y2 = bbox
+
+            # Coordinates of the bottom edge
+            bottom_edge = [(x1, y2), (x2, y2)]
+
+            midpoint = np.array([(x1 + x2) / 2, y2])
+
+            location = get_location_of_bounding_box(midpoint, keypoints)
 
             # just set for testing
             speed = 0
 
-            ball_detection = BallDetectionFrame(location, speed)
+            ball_detection = BallDetectionFrame(np.array(location), speed)
         if class_id == selected_class_ids['player']['id'] or class_id == selected_class_ids['goalkeeper']['id']:
 
-            # location is just screen location for now
-            location = get_screen_location_of_bounding_box(detections.xyxy[i])
+            bbox = detections.xyxy[i]  # [x1, y1, x2, y2]
+            x1, y1, x2, y2 = bbox
+
+            # Coordinates of the bottom edge
+            bottom_edge = [(x1, y2), (x2, y2)]
+
+            midpoint = np.array([(x1 + x2) / 2, y2])
+
+            location = get_location_of_bounding_box(midpoint, keypoints)
 
             # just set for testing
             speed = 0
