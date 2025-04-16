@@ -1,20 +1,22 @@
 import json
 import os
-
 import numpy as np
 import yaml
 import supervision as sv
+
 from src.definitions import CONFIG_PATH, ROOT_DIR
 from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
 from src.fieldPitch.view import ViewTransformer
 
-with open(CONFIG_PATH, 'r') as file:
-    config = yaml.safe_load(file)  # Read the file once
-    meta_file = config['match']['meta_file']
 
-# Parse the JSON string
-with open(os.path.join(ROOT_DIR, str(meta_file)), 'r') as f:
-    data = json.load(f)
+def load_pitch_data():
+    with open(CONFIG_PATH, 'r') as file:
+        config = yaml.safe_load(file)
+        meta_file = config['match']['meta_file']
+
+    with open(os.path.join(ROOT_DIR, str(meta_file)), 'r') as f:
+        return json.load(f)
+
 
 def get_location_of_bounding_box(xy: np.ndarray, keypoints: sv.KeyPoints) -> np.float32:
     """
@@ -27,6 +29,8 @@ def get_location_of_bounding_box(xy: np.ndarray, keypoints: sv.KeyPoints) -> np.
     Returns:
         np.ndarray: A 1D NumPy array with the real position of the player.
     """
+
+    data = load_pitch_data()
 
     pitch_length = data["pitchLength"]
     pitch_width = data["pitchWidth"]
