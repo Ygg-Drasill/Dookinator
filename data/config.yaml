@@ -1,13 +1,13 @@
 match:
-  video: "full.mp4"
-  meta_file: "meta.json"
-  tracking_produced: "tracking-produced.jsonl"
+  video: "data\\full.mp4"
+  meta_file: "data\\meta.json"
+  tracking_produced: "data\\tracking-produced.jsonl"
 
-output_jsonl_relative_file_path: "football_output.jsonl"
+output_jsonl_relative_file_path: "data\\football_output.jsonl"
 
 yolo:
-  keypoint_model: "keypoint_model.pt"
-  soccer_model: "new_football_model.pt"
+  keypoint_model: "data\\keypoint_model.pt"
+  soccer_model: "data\\new_football_model.pt"
   selected_class_ids:
     ball:
       id: 0

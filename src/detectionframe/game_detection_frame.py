@@ -23,12 +23,12 @@ class GameDetectionFrame:
     def to_dict(self):
         return {
             "period": self.period,
-            "frame_idx": self.frame_idx,
-            "game_clock": self.game_clock,
-            "wall_clock": self.wall_clock,
-            "home_players": [player.to_dict() for player in self.home_players],
-            "away_players": [player.to_dict() for player in self.away_players],
+            "frameIdx": self.frame_idx,
+            "gameClock": self.game_clock,
+            "wallClock": self.wall_clock,
+            "homePlayers": [player.to_dict() for player in self.home_players],
+            "awayPlayers": [player.to_dict() for player in self.away_players],
             "ball": self.ball.to_dict() if self.ball else None,
             "live": self.live,
-            "last_touch": self.last_touch.name
+            "lastTouch": self.last_touch.name
         }

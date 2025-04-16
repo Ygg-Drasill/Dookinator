@@ -15,7 +15,7 @@ from src.detectionframe.player_detection_frame import PlayerDetectionFrame
 with open(CONFIG_PATH, 'r') as file:
     config = yaml.safe_load(file)  # Read the file once
     output_jsonl_file_path = config['output_jsonl_relative_file_path']
-    real_data_jsonl_file_path = config['real_data_jsonl_relative_file_path']
+    real_data_jsonl_file_path = config['match']['tracking_produced']
     meta_file = config['match']['meta_file']
 
 with open(os.path.join(ROOT_DIR, str(meta_file)), 'r') as f:
@@ -23,6 +23,8 @@ with open(os.path.join(ROOT_DIR, str(meta_file)), 'r') as f:
 
 height = 480
 width = 640
+
+frame_cap = 10000
 
 football_field_width = data["pitchLength"]
 football_field_height = data["pitchWidth"]
@@ -38,64 +40,61 @@ thickness = 1
 blank_image = np.zeros((height, width, 3), np.uint8)
 
 def main() -> int:
+    our_frames = read_football_output(output_jsonl_file_path)
+    real_frames = read_football_output(real_data_jsonl_file_path)
+
+    for i in range(min(len(our_frames), len(real_frames))):
+        visualize_data(our_frames[i], real_frames[i])
+
+    cv2.destroyAllWindows()
+    return 0
 
 
-
-    return
-
-
-def visualize_data(frame: int):
-    our_data = read_football_output(output_jsonl_file_path)
-    real_data = read_football_output(real_data_jsonl_file_path)
-
+def visualize_data(our_data: GameDetectionFrame, real_data: GameDetectionFrame):
     image = gen_image(our_data, real_data)
+    cv2.imshow("Visualization of data", image)
+    cv2.waitKey(1)
 
-    cv2.imshow("visualization of data", image)
     pass
 
-def read_football_output(file_path: str) -> GameDetectionFrame:
+def read_football_output(file_path: str) -> list[GameDetectionFrame]:
+    json_iter = pd.read_json(path_or_buf=os.path.join(ROOT_DIR, file_path), lines=True, chunksize=10000)
+    game_detection_frames = []
 
-    json_obj = pd.read_json(path_or_buf=file_path, lines=True)
-    frame = json_obj.iloc[0]
+    json_obj = next(json_iter)
 
-    home_players_raw = frame["home_players"]
+    for _, frame in json_obj.iterrows():
+        home_players = np.array([
+            PlayerDetectionFrame(
+                player_id=p["playerId"],
+                number=p["number"],
+                xyz=np.array(p["xyz"]),
+                speed=p["speed"],
+                opta_id=p["optaId"]
+            ) for p in frame["homePlayers"]
+        ])
 
-    home_players = np.array([
-        PlayerDetectionFrame(
-            player_id=p["player_id"],
-            number=p["number"],
-            xyz=np.array(p["xyz"]),
-            speed=p["speed"],
-            opta_id=p["opta_id"]
+        away_players = np.array([
+            PlayerDetectionFrame(
+                player_id=p["playerId"],
+                number=p["number"],
+                xyz=np.array(p["xyz"]),
+                speed=p["speed"],
+                opta_id=p["optaId"]
+            ) for p in frame["awayPlayers"]
+        ])
+
+        ball_raw = frame["ball"]
+        ball = BallDetectionFrame(xyz=np.array(ball_raw["xyz"]), speed=ball_raw["speed"]) if ball_raw and not pd.isna(ball_raw) else None
+
+        game_detection_frame = GameDetectionFrame(
+            period=0, frame_idx=frame["frameIdx"], game_clock=0, wall_clock=0,
+            home_players=home_players, away_players=away_players,
+            ball=ball, live=True, last_touch=LastTouch.Home
         )
-        for p in home_players_raw
-    ])
+        game_detection_frames.append(game_detection_frame)
 
-    away_players_raw = frame["away_players"]
-
-    away_players = np.array([
-        PlayerDetectionFrame(
-            player_id=p["player_id"],
-            number=p["number"],
-            xyz=np.array(p["xyz"]),
-            speed=p["speed"],
-            opta_id=p["opta_id"]
-        )
-        for p in away_players_raw
-    ])
-
-    ball_raw = frame["ball"]
-
-    if ball_raw is not None:
-        ball = BallDetectionFrame(
-            xyz=np.array(ball_raw["xyz"]),
-            speed=ball_raw["speed"]
-        )
-    else:
-        ball = None
-
-    game_detection_frame = GameDetectionFrame(period=0, frame_idx=frame, game_clock=0, wall_clock=0, home_players=home_players, away_players=away_players, ball=ball, live=True, last_touch=LastTouch.Home)
-    return game_detection_frame
+    return game_detection_frames
 
 def gen_image(our_game_detection_frame: GameDetectionFrame, real_game_detection_frame: GameDetectionFrame) -> np.array:
     image = blank_image.copy()
@@ -124,3 +123,4 @@ def read_players(players: np.ndarray, image: np.ndarray, color: tuple[int, int, 
 
 if __name__ == '__main__':
     sys.exit(main())
+

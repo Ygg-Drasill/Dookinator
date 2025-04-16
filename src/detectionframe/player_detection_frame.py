@@ -10,9 +10,9 @@ class PlayerDetectionFrame:
 
     def to_dict(self):
         return {
-            "player_id": self.player_id,
+            "playerId": self.player_id,
             "number": self.number,
             "xyz": self.xyz.tolist(),
             "speed": self.speed,
-            "opta_id": self.opta_id
+            "optaId": self.opta_id
         }

@@ -4,7 +4,7 @@ from supervision import Detections, KeyPoints
 
 from src.definitions import CONFIG_PATH
 from src.detectionframe.ball_detection_frame import BallDetectionFrame
-from src.detectionframe.DetectionsVariablesCalculator.detection_location import get_location_of_bounding_box
+from src.detectionframe.detectionsVariablesCalculator.detection_location import get_location_of_bounding_box
 from src.detectionframe.game_detection_frame import GameDetectionFrame, LastTouch
 from src.detectionframe.player_detection_frame import PlayerDetectionFrame
 
