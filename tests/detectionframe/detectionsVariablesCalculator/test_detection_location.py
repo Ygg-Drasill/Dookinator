@@ -40,6 +40,9 @@ def mock_vertices():
 def test_get_location_of_bounding_box(mock_transformer_class, mock_config_class, mock_keypoints, mock_vertices):
     mock_config_instance = MagicMock()
     mock_config_instance.vertices = mock_vertices
+    mock_config_instance.pitchLength = 105
+    mock_config_instance.pitchWidth = 68
+
     mock_config_class.return_value = mock_config_instance
 
     mock_transformer_instance = MagicMock()
