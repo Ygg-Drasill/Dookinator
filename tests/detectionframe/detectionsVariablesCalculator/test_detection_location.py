@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from unittest.mock import patch, MagicMock
-from src.detectionframe.DetectionsVariablesCalculator.detection_location import get_location_of_bounding_box
+from src.detectionframe.detectionsVariablesCalculator.detection_location import get_location_of_bounding_box
 
 
 @pytest.fixture
@@ -35,8 +35,8 @@ def mock_vertices():
     ]
 
 
-@patch("src.detectionframe.DetectionsVariablesCalculator.detection_location.SoccerPitchConfiguration")
-@patch("src.detectionframe.DetectionsVariablesCalculator.detection_location.ViewTransformer")
+@patch("src.detectionframe.detectionsVariablesCalculator.detection_location.SoccerPitchConfiguration")
+@patch("src.detectionframe.detectionsVariablesCalculator.detection_location.ViewTransformer")
 def test_get_location_of_bounding_box(mock_transformer_class, mock_config_class, mock_keypoints, mock_vertices):
     mock_config_instance = MagicMock()
     mock_config_instance.vertices = mock_vertices
