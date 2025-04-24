@@ -91,11 +91,11 @@ def main() -> int:
         pitch_length = pitch_data["pitchLength"]
         pitch_width = pitch_data["pitchWidth"]
 
-        image_overlay = draw_overlay(SoccerPitchConfiguration(width=pitch_width, length=pitch_length), annotated_frame, detection_frame, scale=3)
-
+        if config['show_output_overlay']:
+            annotated_frame = draw_overlay(SoccerPitchConfiguration(width=pitch_width, length=pitch_length), annotated_frame, detection_frame, scale=3)
 
         # show the frame to our screen
-        cv2.imshow("Frame", image_overlay)
+        cv2.imshow("Frame", annotated_frame)
 
         if cv2.waitKey(1) == ord("q"):
             break
