@@ -4,7 +4,6 @@ import pandas as pd
 from unittest.mock import patch, MagicMock
 
 from src.detectionframe.game_detection_frame import GameDetectionFrame, LastTouch
-from src.detectionframe.player_detection_frame import PlayerDetectionFrame
 from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
 from src.output.common import read_football_output, draw_soccer_field, read_players, draw_overlay
 

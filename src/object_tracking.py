@@ -7,7 +7,6 @@ import yaml
 
 import cv2
 import supervision as sv
-from torchaudio.functional import pitch_shift
 
 from src.bytetrack.byte_track import filter_detections
 from src.definitions import ROOT_DIR, CONFIG_PATH
