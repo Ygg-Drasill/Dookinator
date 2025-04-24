@@ -9,3 +9,4 @@ opencv-python~=4.11.0.86
 supervision~=0.25.1
 PyYAML~=6.0.2
 pytest
+pandas

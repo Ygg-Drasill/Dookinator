@@ -14,12 +14,6 @@ class SoccerPitchConfiguration:
     centre_circle_radius: int = 9.15  # [m]
     penalty_spot_distance: int = 11.00  # [m]
 
-    def __init__(self, width, length):
-        self.width = width
-        self.length = length
-
-        pass
-
     @property
     def vertices(self) -> List[Tuple[int, int]]:
         return [

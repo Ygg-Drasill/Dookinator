@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import sys
 
@@ -11,7 +12,11 @@ from src.bytetrack.byte_track import filter_detections
 from src.definitions import ROOT_DIR, CONFIG_PATH
 from src.detectionframe.calculate_frame import calculate_detection_frame
 from src.detectionframe.output_to_jsonl import output_detection_frame
+from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
+from src.output.common import draw_overlay
 from yolox.yolo import SoccerYOLOX
+
+
 
 def main() -> int:
     with open(CONFIG_PATH, 'r') as file:
@@ -20,6 +25,9 @@ def main() -> int:
         byte_track = config['byte_track']
         yolo = config['yolo']
         jsonl_file_path = config['output_jsonl_relative_file_path']
+
+    with open(os.path.join(ROOT_DIR, str(match['meta_file'])), 'r') as f:
+        pitch_data = json.load(f)
 
     # initialize the video capture object
     video_cap = cv2.VideoCapture(os.path.join(ROOT_DIR, str(match["video"])))
@@ -78,6 +86,13 @@ def main() -> int:
 
         label_annotator.annotate(
             annotated_frame, detections=detections, labels=labels)
+
+        pitch_length = pitch_data["pitchLength"]
+        pitch_width = pitch_data["pitchWidth"]
+
+        if config['show_output_overlay']:
+            annotated_frame = draw_overlay(SoccerPitchConfiguration(width=pitch_width, length=pitch_length), annotated_frame, detection_frame, scale=3)
+
         # show the frame to our screen
         cv2.imshow("Frame", annotated_frame)
 

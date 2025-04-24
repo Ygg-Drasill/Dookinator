@@ -48,7 +48,7 @@ class TestGameDetectionFrame(unittest.TestCase):
         frame = GameDetectionFrame(period, frame_idx, game_clock, wall_clock, home_players, away_players, ball, live,
                                    last_touch)
 
-        expected_dict = {"period": 0,"frame_idx": 0, "game_clock": 0, "wall_clock": 0, "home_players": [player.to_dict() for player in np.array([])], "away_players": [player.to_dict() for player in np.array([])], "ball": BallDetectionFrame(np.array([0, 0, 0]), 0).to_dict(), "live": True, "last_touch": LastTouch.Home.name}
+        expected_dict = {"period": 0,"frameIdx": 0, "gameClock": 0, "wallClock": 0, "homePlayers": [player.to_dict() for player in np.array([])], "awayPlayers": [player.to_dict() for player in np.array([])], "ball": BallDetectionFrame(np.array([0, 0, 0]), 0).to_dict(), "live": True, "lastTouch": LastTouch.Home.name}
         self.assertEqual(expected_dict, frame.to_dict())
 
         pass

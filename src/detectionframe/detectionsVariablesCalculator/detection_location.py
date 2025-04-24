@@ -35,7 +35,7 @@ def get_location_of_bounding_box(xy: np.ndarray, keypoints: sv.KeyPoints) -> np.
     pitch_length = data["pitchLength"]
     pitch_width = data["pitchWidth"]
 
-    soccer_field_config = SoccerPitchConfiguration(pitch_width, pitch_length)
+    soccer_field_config = SoccerPitchConfiguration(width=pitch_width, length=pitch_length)
 
     mask = (keypoints.xy[0][:, 0] > 1) & (keypoints.xy[0][:, 1] > 1)
     transformer = ViewTransformer(
