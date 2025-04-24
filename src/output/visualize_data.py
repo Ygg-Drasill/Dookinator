@@ -33,9 +33,9 @@ def main() -> int:
     for i in range(len(our_frames)):
         image = draw_soccer_field(soccer_field_config, 50, 4, 10)
 
-        test = our_frames[i].home_players
+        home_players = our_frames[i].home_players
 
-        image = read_players(soccer_field_config, test, image,  (0, 0, 255), 50, 10, image)
+        image = read_players(soccer_field_config, image, home_players,  (0, 0, 255), 50, 10)
 
         cv2.imshow("Visualization of data", image)
         cv2.waitKey(1)

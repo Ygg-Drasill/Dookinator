@@ -4,6 +4,7 @@ match:
   tracking_produced: "data\\tracking-produced.jsonl"
 
 output_jsonl_relative_file_path: "data\\football_output.jsonl"
+show_output_overlay: true
 
 yolo:
   keypoint_model: "data\\keypoint_model.pt"
