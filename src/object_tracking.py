@@ -14,6 +14,7 @@ from src.detectionframe.calculate_frame import calculate_detection_frame
 from src.detectionframe.output_to_jsonl import output_detection_frame
 from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
 from src.output.common import draw_overlay
+from src.player_seperation import player_separation
 from yolox.yolo import SoccerYOLOX
 
 
@@ -66,6 +67,11 @@ def main() -> int:
 
         detections = tracker.update_with_detections(detections)
 
+        player_teams = player_separation(frame, detections.xyxy, detections.tracker_id)
+
+        print(player_teams)
+
+
         ######################################
         # Output
         ######################################
@@ -76,7 +82,7 @@ def main() -> int:
 
         # Create labels with tracker IDs
         labels = [
-            f"#{tracker_id[0]}"
+            f"#{tracker_id[0]}+{player_teams[tracker_id[0]]}"
             for tracker_id
             in zip(detections.tracker_id)
         ]
