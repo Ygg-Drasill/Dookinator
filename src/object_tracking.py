@@ -17,100 +17,115 @@ from src.output.common import draw_overlay
 from src.player_seperation import player_separation
 from yolox.yolo import SoccerYOLOX
 
+with open(CONFIG_PATH, 'r') as file:
+    config = yaml.safe_load(file)  # Read the file once
+    match = config['match']
+    byte_track = config['byte_track']
+    yolo = config['yolo']
+    jsonl_file_path = config['output_jsonl_relative_file_path']
 
+with open(os.path.join(ROOT_DIR, str(match['meta_file'])), 'r') as f:
+    pitch_data = json.load(f)
+
+# initialize the video capture object
+video_cap = cv2.VideoCapture(os.path.join(ROOT_DIR, str(match["video"])))
+
+tracker = sv.ByteTrack(byte_track['track_activation_threshold'], byte_track['lost_track_buffer'],
+                       byte_track['minimum_matching_threshold'], byte_track['frame_rate'],
+                       byte_track['minimum_consecutive_frames'])
+box_annotator = sv.BoxAnnotator()
+label_annotator = sv.LabelAnnotator()
+
+soccer_YOLOX = SoccerYOLOX(os.path.join(ROOT_DIR, str(yolo['soccer_model'])),
+                           os.path.join(ROOT_DIR, str(yolo['keypoint_model'])))
+
+# remove old output file
+if os.path.exists(os.path.join(ROOT_DIR, str(jsonl_file_path))):
+    os.remove(os.path.join(ROOT_DIR, str(jsonl_file_path)))
+
+frame_count = 0
 
 def main() -> int:
-    with open(CONFIG_PATH, 'r') as file:
-        config = yaml.safe_load(file)  # Read the file once
-        match = config['match']
-        byte_track = config['byte_track']
-        yolo = config['yolo']
-        jsonl_file_path = config['output_jsonl_relative_file_path']
-
-    with open(os.path.join(ROOT_DIR, str(match['meta_file'])), 'r') as f:
-        pitch_data = json.load(f)
-
-    # initialize the video capture object
-    video_cap = cv2.VideoCapture(os.path.join(ROOT_DIR, str(match["video"])))
-
-    tracker = sv.ByteTrack(byte_track['track_activation_threshold'], byte_track['lost_track_buffer'], byte_track['minimum_matching_threshold'], byte_track['frame_rate'], byte_track['minimum_consecutive_frames'])
-    box_annotator = sv.BoxAnnotator()
-    label_annotator = sv.LabelAnnotator()
-
-    soccer_YOLOX = SoccerYOLOX(os.path.join(ROOT_DIR, str(yolo['soccer_model'])), os.path.join(ROOT_DIR, str(yolo['keypoint_model'])))
-
-    frame_count = 0
-
-    #remove old output file
-    if os.path.exists(os.path.join(ROOT_DIR, str(jsonl_file_path))):
-        os.remove(os.path.join(ROOT_DIR, str(jsonl_file_path)))
 
     while True:
-        start = datetime.datetime.now()
 
-        ret, frame = video_cap.read()
-
-        if not ret:
-            print("Could not capture video frame.")
-            break
-
-        results = soccer_YOLOX.read_frame(frame)
-        keypoints = soccer_YOLOX.find_keypoint(frame)
-
-        ######################################
-        # TRACKING
-        ######################################
-
-        detections = sv.Detections.from_ultralytics(results)
-
-        detections = filter_detections(detections)
-
-        detections = tracker.update_with_detections(detections)
-
-        player_teams = player_separation(frame, detections.xyxy, detections.tracker_id)
-
-        print(player_teams)
-
-
-        ######################################
-        # Output
-        ######################################
-
-        detection_frame = calculate_detection_frame(detections, frame_count, keypoints)
-
-        output_detection_frame(detection_frame, os.path.join(ROOT_DIR, str(jsonl_file_path)))
-
-        # Create labels with tracker IDs
-        labels = [
-            f"#{tracker_id[0]}+{player_teams[tracker_id[0]]}"
-            for tracker_id
-            in zip(detections.tracker_id)
-        ]
-
-        annotated_frame = box_annotator.annotate(
-            frame.copy(), detections=detections)
-
-        label_annotator.annotate(
-            annotated_frame, detections=detections, labels=labels)
-
-        pitch_length = pitch_data["pitchLength"]
-        pitch_width = pitch_data["pitchWidth"]
-
-        if config['show_output_overlay']:
-            annotated_frame = draw_overlay(SoccerPitchConfiguration(width=pitch_width, length=pitch_length), annotated_frame, detection_frame, scale=3)
-
-        # show the frame to our screen
-        cv2.imshow("Frame", annotated_frame)
+        read_next_frames()
 
         if cv2.waitKey(1) == ord("q"):
             break
-
-        frame_count += 1
 
         pass
     video_cap.release()
     cv2.destroyAllWindows()
     return 0
+
+
+
+def read_next_frames():
+    global frame_count
+
+    number_of_frames_to_read = 10  # Number of frames to read
+    frames = []
+    detections = []
+    key_points = []
+
+    for i in range(number_of_frames_to_read):
+        ret, frame = video_cap.read()
+        if not ret:
+            print("Could not capture video frame.")
+            break
+
+        frames.append(frame)
+        results = soccer_YOLOX.read_frame(frame)
+        key_points.append(soccer_YOLOX.find_keypoint(frame))
+
+        detections.append(sv.Detections.from_ultralytics(results))
+
+        detections[i] = filter_detections(detections[i])
+
+        detections[i] = tracker.update_with_detections(detections[i])
+
+        pass
+
+    player_teams = player_separation(frames, detections)
+
+    print(player_teams)
+
+    ######################################
+    # Output
+    ######################################
+
+    for i in range(number_of_frames_to_read):
+
+        detection_frame = calculate_detection_frame(detections[i], frame_count, key_points[i])
+
+        output_detection_frame(detection_frame, os.path.join(ROOT_DIR, str(jsonl_file_path)))
+
+        # Create labels with tracker IDs
+        labels = [
+            f"#{tracker_id} + {player_teams[i][j]}"
+            for j, tracker_id in enumerate(detections[i].tracker_id)
+        ]
+
+        annotated_frame = box_annotator.annotate(
+            frames[i].copy(), detections=detections[i])
+
+        label_annotator.annotate(
+            annotated_frame, detections=detections[i], labels=labels)
+
+        pitch_length = pitch_data["pitchLength"]
+        pitch_width = pitch_data["pitchWidth"]
+
+        if config['show_output_overlay']:
+            annotated_frame = draw_overlay(SoccerPitchConfiguration(width=pitch_width, length=pitch_length),
+                                           annotated_frame, detection_frame, scale=3)
+
+        # show the frame to our screen
+        cv2.imshow("Frame", annotated_frame)
+
+        frame_count += 1
+
+    pass
 
 if __name__ == '__main__':
     sys.exit(main())

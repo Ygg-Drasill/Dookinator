@@ -1,13 +1,20 @@
-from typing import Generator, Iterable, List, TypeVar
-
+from typing import Generator, Iterable, List, TypeVar, Iterator
 
 import numpy as np
 import supervision as sv
 import torch
 import umap
+import yaml
 from sklearn.cluster import KMeans
 from tqdm import tqdm
 from transformers import AutoProcessor, SiglipVisionModel
+
+from src.definitions import CONFIG_PATH
+
+with open(CONFIG_PATH, 'r') as file:
+    config = yaml.safe_load(file)  # Read the file once
+    yolo = config['yolo']
+
 
 V = TypeVar("V")
 
@@ -28,6 +35,22 @@ def create_batches(
     if current_batch:
         yield current_batch
 
+def resolve_goalkeepers_team_id(
+    players: sv.Detections,
+    players_team_id: np.array,
+    goalkeepers: sv.Detections
+) -> np.ndarray:
+
+    goalkeepers_xy = goalkeepers.get_anchors_coordinates(sv.Position.BOTTOM_CENTER)
+    players_xy = players.get_anchors_coordinates(sv.Position.BOTTOM_CENTER)
+    team_0_centroid = players_xy[players_team_id == 0].mean(axis=0)
+    team_1_centroid = players_xy[players_team_id == 1].mean(axis=0)
+    goalkeepers_team_id = []
+    for goalkeeper_xy in goalkeepers_xy:
+        dist_0 = np.linalg.norm(goalkeeper_xy - team_0_centroid)
+        dist_1 = np.linalg.norm(goalkeeper_xy - team_1_centroid)
+        goalkeepers_team_id.append(0 if dist_0 < dist_1 else 1)
+    return np.array(goalkeepers_team_id)
 
 class TeamClassifier:
 
@@ -67,22 +90,48 @@ class TeamClassifier:
         projections = self.reducer.transform(data)
         return self.cluster_model.predict(projections)
 
-def player_separation(frame, bboxes, box_id):
-    cropped_images = []
-    bboxes = np.array(bboxes).astype(int)
+def player_separation(frames, detections_chunk):
+    crops = []
+    PLAYER_CLASS_ID = yolo['selected_class_ids']['player']['id']
+    GOALKEEPER_CLASS_ID = yolo['selected_class_ids']['goalkeeper']['id']
 
-    for (x_min, y_min, x_max, y_max) in bboxes:
-        cropped = frame[y_min:y_max, x_min:x_max]
-        cropped_images.append(cropped)
+    color_lookups = []
+
+    for i, frame in enumerate(frames):
+        crops += get_crops(frame, detections_chunk[i][detections_chunk[i].class_id == PLAYER_CLASS_ID])
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     team_classifier = TeamClassifier(device=device)
-    team_classifier.fit(cropped_images)
+    team_classifier.fit(crops)
 
-    players_team_id = team_classifier.predict(cropped_images)
+    for i, frame in enumerate(frames):
+        players = detections_chunk[i][detections_chunk[i].class_id == PLAYER_CLASS_ID]
+        crops = get_crops(frame, players)
+        players_team_id = team_classifier.predict(crops)
 
-    color_lookup = np.array(players_team_id)
-    id_to_color = dict(zip(box_id, color_lookup))
+        goalkeepers = detections_chunk[i][detections_chunk[i].class_id == GOALKEEPER_CLASS_ID]
+        goalkeepers_team_id = resolve_goalkeepers_team_id(
+            players, players_team_id, goalkeepers)
 
+        detections_chunk[i] = sv.Detections.merge([players, goalkeepers])
 
-    return id_to_color
+        color_lookup = np.array(
+            players_team_id.tolist() +
+            goalkeepers_team_id.tolist()
+        )
+        color_lookups.append(color_lookup)
+
+    return color_lookups
+
+def get_crops(frame: np.ndarray, detections: sv.Detections) -> List[np.ndarray]:
+    """
+    Extract crops from the frame based on detected bounding boxes.
+
+    Args:
+        frame (np.ndarray): The frame from which to extract crops.
+        detections (sv.Detections): Detected objects with bounding boxes.
+
+    Returns:
+        List[np.ndarray]: List of cropped images.
+    """
+    return [sv.crop_image(frame, xyxy) for xyxy in detections.xyxy]
