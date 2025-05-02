@@ -21,6 +21,8 @@ V = TypeVar("V")
 SIGLIP_MODEL_PATH = 'google/siglip-base-patch16-224'
 
 
+
+
 def create_batches(
     sequence: Iterable[V], batch_size: int
 ) -> Generator[List[V], None, None]:
@@ -90,6 +92,9 @@ class TeamClassifier:
         projections = self.reducer.transform(data)
         return self.cluster_model.predict(projections)
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+team_classifier = TeamClassifier(device=device)
+
 def player_separation(frames, detections_chunk):
     crops = []
     PLAYER_CLASS_ID = yolo['selected_class_ids']['player']['id']
@@ -100,8 +105,7 @@ def player_separation(frames, detections_chunk):
     for i, frame in enumerate(frames):
         crops += get_crops(frame, detections_chunk[i][detections_chunk[i].class_id == PLAYER_CLASS_ID])
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    team_classifier = TeamClassifier(device=device)
+
     team_classifier.fit(crops)
 
     for i, frame in enumerate(frames):
@@ -120,8 +124,9 @@ def player_separation(frames, detections_chunk):
             goalkeepers_team_id.tolist()
         )
         color_lookups.append(color_lookup)
+        detections_chunk[i]["player_team"] = color_lookups[i]
 
-    return color_lookups
+    return detections_chunk
 
 def get_crops(frame: np.ndarray, detections: sv.Detections) -> List[np.ndarray]:
     """

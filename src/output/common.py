@@ -207,6 +207,7 @@ def draw_overlay(config: SoccerPitchConfiguration, image: np.ndarray, game_detec
     soccer_field = draw_soccer_field(config, line_thickness=line_thickness, scale=scale, padding=0)
 
     soccer_field = read_players(config, soccer_field, game_detection_frame.home_players, (0, 0, 255), scale=scale, padding=0)
+    soccer_field = read_players(config, soccer_field, game_detection_frame.away_players, (0, 255, 0), scale=scale, padding=0)
 
     if soccer_field.shape[0] > image.shape[0] or soccer_field.shape[1] > image.shape[1]:
         scale_factor = min(image.shape[1] / soccer_field.shape[1], image.shape[0] / soccer_field.shape[0], 1.0)

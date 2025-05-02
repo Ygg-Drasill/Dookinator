@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 import sys
@@ -14,6 +13,7 @@ from src.detectionframe.calculate_frame import calculate_detection_frame
 from src.detectionframe.output_to_jsonl import output_detection_frame
 from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
 from src.output.common import draw_overlay
+from src.output.output_video_file import SoccerVideoWriter
 from src.player_seperation import player_separation
 from yolox.yolo import SoccerYOLOX
 
@@ -45,28 +45,28 @@ if os.path.exists(os.path.join(ROOT_DIR, str(jsonl_file_path))):
 
 frame_count = 0
 
+soccer_video_writer = SoccerVideoWriter()
+
 def main() -> int:
 
-    while True:
+    #while True:
 
-        read_next_frames()
+    read_next_frames()
 
-        if cv2.waitKey(1) == ord("q"):
-            break
+    #if cv2.waitKey(1) == ord("q"):
+        #break
 
-        pass
+    pass
     video_cap.release()
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
     return 0
-
-
 
 def read_next_frames():
     global frame_count
 
-    number_of_frames_to_read = 10  # Number of frames to read
+    number_of_frames_to_read = 4500  # Number of frames to read
     frames = []
-    detections = []
+    detections_chunk = []
     key_points = []
 
     for i in range(number_of_frames_to_read):
@@ -79,17 +79,15 @@ def read_next_frames():
         results = soccer_YOLOX.read_frame(frame)
         key_points.append(soccer_YOLOX.find_keypoint(frame))
 
-        detections.append(sv.Detections.from_ultralytics(results))
+        detections_chunk.append(sv.Detections.from_ultralytics(results))
 
-        detections[i] = filter_detections(detections[i])
+        detections_chunk[i] = filter_detections(detections_chunk[i])
 
-        detections[i] = tracker.update_with_detections(detections[i])
+        detections_chunk[i] = tracker.update_with_detections(detections_chunk[i])
 
         pass
 
-    player_teams = player_separation(frames, detections)
-
-    print(player_teams)
+    detections_chunk = player_separation(frames, detections_chunk)
 
     ######################################
     # Output
@@ -97,21 +95,21 @@ def read_next_frames():
 
     for i in range(number_of_frames_to_read):
 
-        detection_frame = calculate_detection_frame(detections[i], frame_count, key_points[i])
+        detection_frame = calculate_detection_frame(detections_chunk[i], frame_count, key_points[i])
 
         output_detection_frame(detection_frame, os.path.join(ROOT_DIR, str(jsonl_file_path)))
 
         # Create labels with tracker IDs
         labels = [
-            f"#{tracker_id} + {player_teams[i][j]}"
-            for j, tracker_id in enumerate(detections[i].tracker_id)
+            f"#{tracker_id} + {team}"
+            for j, (tracker_id, team) in enumerate(zip(detections_chunk[i].tracker_id, detections_chunk[i]["player_team"]))
         ]
 
         annotated_frame = box_annotator.annotate(
-            frames[i].copy(), detections=detections[i])
+            frames[i].copy(), detections=detections_chunk[i])
 
         label_annotator.annotate(
-            annotated_frame, detections=detections[i], labels=labels)
+            annotated_frame, detections=detections_chunk[i], labels=labels)
 
         pitch_length = pitch_data["pitchLength"]
         pitch_width = pitch_data["pitchWidth"]
@@ -120,8 +118,9 @@ def read_next_frames():
             annotated_frame = draw_overlay(SoccerPitchConfiguration(width=pitch_width, length=pitch_length),
                                            annotated_frame, detection_frame, scale=3)
 
+        soccer_video_writer.write_frame(annotated_frame)
         # show the frame to our screen
-        cv2.imshow("Frame", annotated_frame)
+        #cv2.imshow("Frame", annotated_frame)
 
         frame_count += 1
 
