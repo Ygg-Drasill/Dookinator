@@ -65,7 +65,11 @@ def calculate_detection_frame(detections: Detections, frame_idx: int, keypoints:
             opta_id = 0
 
             player = PlayerDetectionFrame(player_id, number, location, speed, opta_id)
-            home_player_detections.append(player)
+
+            if(detections["player_team"][i] == 0):
+                away_player_detections.append(player)
+            if(detections["player_team"][i] == 1):
+                home_player_detections.append(player)
 
         pass
 

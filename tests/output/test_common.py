@@ -51,6 +51,7 @@ def dummy_players():
 def game_detection_frame(dummy_players):
     frame = MagicMock(spec=GameDetectionFrame)
     frame.home_players = dummy_players
+    frame.away_players = dummy_players
     return frame
 
 @patch("src.definitions", "/mock/root")
@@ -147,7 +148,7 @@ def test_draw_overlay_combines_images(mock_draw_field, mock_read_players, mock_c
 
     # Check both drawing functions were called
     mock_draw_field.assert_called_once_with(mock_config, line_thickness=4, scale=10, padding=0)
-    mock_read_players.assert_called_once()
+    assert mock_read_players.call_count == 2
 
     # Validate that blending happened at correct position
     x_offset = (dummy_pitch.shape[1] - fake_field.shape[1]) // 2
