@@ -64,7 +64,7 @@ def main() -> int:
 def read_next_frames():
     global frame_count
 
-    number_of_frames_to_read = 4500  # Number of frames to read
+    number_of_frames_to_read = 100  # Number of frames to read
     frames = []
     detections_chunk = []
     key_points = []
@@ -93,23 +93,23 @@ def read_next_frames():
     # Output
     ######################################
 
-    for i in range(number_of_frames_to_read):
+    for i, detections in enumerate(detections_chunk):
 
-        detection_frame = calculate_detection_frame(detections_chunk[i], frame_count, key_points[i])
+        detection_frame = calculate_detection_frame(detections, frame_count, key_points[i])
 
         output_detection_frame(detection_frame, os.path.join(ROOT_DIR, str(jsonl_file_path)))
 
         # Create labels with tracker IDs
         labels = [
             f"#{tracker_id} + {team}"
-            for j, (tracker_id, team) in enumerate(zip(detections_chunk[i].tracker_id, detections_chunk[i]["player_team"]))
+            for j, (tracker_id, team) in enumerate(zip(detections.tracker_id, detections["player_team"]))
         ]
 
         annotated_frame = box_annotator.annotate(
-            frames[i].copy(), detections=detections_chunk[i])
+            frames[i].copy(), detections=detections)
 
         label_annotator.annotate(
-            annotated_frame, detections=detections_chunk[i], labels=labels)
+            annotated_frame, detections=detections, labels=labels)
 
         pitch_length = pitch_data["pitchLength"]
         pitch_width = pitch_data["pitchWidth"]

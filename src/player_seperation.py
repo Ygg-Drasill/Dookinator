@@ -6,6 +6,7 @@ import torch
 import umap
 import yaml
 from sklearn.cluster import KMeans
+from supervision import Detections
 from tqdm import tqdm
 from transformers import AutoProcessor, SiglipVisionModel
 
@@ -95,7 +96,7 @@ class TeamClassifier:
 device = "cuda" if torch.cuda.is_available() else "cpu"
 team_classifier = TeamClassifier(device=device)
 
-def player_separation(frames, detections_chunk):
+def player_separation(frames, detections_chunk) -> Iterator[Detections]:
     crops = []
     PLAYER_CLASS_ID = yolo['selected_class_ids']['player']['id']
     GOALKEEPER_CLASS_ID = yolo['selected_class_ids']['goalkeeper']['id']
@@ -126,7 +127,7 @@ def player_separation(frames, detections_chunk):
         color_lookups.append(color_lookup)
         detections_chunk[i]["player_team"] = color_lookups[i]
 
-    return detections_chunk
+        yield detections_chunk[i]
 
 def get_crops(frame: np.ndarray, detections: sv.Detections) -> List[np.ndarray]:
     """
