@@ -64,7 +64,7 @@ def main() -> int:
 def read_next_frames():
     global frame_count
 
-    number_of_frames_to_read = 100  # Number of frames to read
+    number_of_frames_to_read = match['number_of_frames_to_read']
     frames = []
     detections_chunk = []
     key_points = []
