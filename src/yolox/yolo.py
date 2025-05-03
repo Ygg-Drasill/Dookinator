@@ -33,6 +33,6 @@ class SoccerYOLOX:
     def find_keypoint(self, frame: np.ndarray) -> KeyPoints:
 
         result = self.keypoint_model(frame)[0]
-        keypoints = sv.KeyPoints.from_ultralytics(result)
+        key_points = sv.KeyPoints.from_ultralytics(result)
 
-        return keypoints
+        return key_points
