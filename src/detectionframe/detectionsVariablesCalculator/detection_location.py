@@ -48,9 +48,15 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
     #check if there are 3 or fewer trues
     if mask.sum() <= 3:
         good_values = key_point_saver.load_good_key_points()
-        if good_values.count() > 0:
+        if len(good_values) > 0:
             xy = good_values[0]
             key_points = good_values[1]
+
+            mask = (
+                    (key_points.xy[0][:, 0] > 1)
+                    & (key_points.xy[0][:, 1] > 1)
+                    & (key_points.confidence[0] > 0.5)
+            )
     else:
         key_point_saver.save_good_key_points(xy, key_points)
 

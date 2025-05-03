@@ -15,13 +15,15 @@ def mock_data():
 @pytest.fixture
 def mock_keypoints():
     keypoints = MagicMock()
-    # Create fake keypoints that pass the mask filter
     keypoints.xy = [
         np.array([
             [10.0, 20.0],
             [30.0, 40.0],
             [0.5, 0.5],
         ])
+    ]
+    keypoints.confidence = [
+        np.array([0.9, 0.8, 0.4])
     ]
     return keypoints
 
