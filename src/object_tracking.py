@@ -98,7 +98,11 @@ def read_next_frames():
 
     for i, detections in enumerate(detections_chunk):
 
-        detection_frame = calculate_detection_frame(detections, frame_count, key_point_chunk[i])
+        try:
+            detection_frame = calculate_detection_frame(detections, frame_count, key_point_chunk[i])
+        except Exception as error:
+            print('Caught this error: ' + repr(error))
+            continue
 
         output_detection_frame(detection_frame, os.path.join(ROOT_DIR, str(jsonl_file_path)))
 

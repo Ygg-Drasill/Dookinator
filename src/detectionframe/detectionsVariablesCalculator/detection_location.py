@@ -3,6 +3,7 @@ import os
 import numpy as np
 import yaml
 import supervision as sv
+from numpy.f2py.auxfuncs import throw_error
 
 from src.definitions import CONFIG_PATH, ROOT_DIR
 from src.fieldPitch.KeyPointSaver import KeyPointSaver
@@ -55,8 +56,9 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
             mask = (
                     (key_points.xy[0][:, 0] > 1)
                     & (key_points.xy[0][:, 1] > 1)
-                    & (key_points.confidence[0] > 0.5)
             )
+        else:
+            raise Exception('No good key points found')
     else:
         key_point_saver.save_good_key_points(xy, key_points)
 
