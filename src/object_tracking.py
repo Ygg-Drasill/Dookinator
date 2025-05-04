@@ -102,6 +102,7 @@ def read_next_frames():
             detection_frame = calculate_detection_frame(detections, frame_count, key_point_chunk[i])
         except Exception as error:
             print('Caught this error: ' + repr(error))
+            frame_count += 1
             continue
 
         output_detection_frame(detection_frame, os.path.join(ROOT_DIR, str(jsonl_file_path)))
