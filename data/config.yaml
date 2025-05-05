@@ -3,6 +3,7 @@ match:
   meta_file: "data\\meta.json"
   tracking_produced: "data\\tracking-produced.jsonl"
   video_output: "data\\video-output.mp4"
+  number_of_seconds_to_read: 30
 
 output_jsonl_relative_file_path: "data\\football_output.jsonl"
 show_output_overlay: true

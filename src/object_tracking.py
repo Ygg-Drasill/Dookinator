@@ -25,7 +25,7 @@ with open(CONFIG_PATH, 'r') as file:
     jsonl_file_path = config['output_jsonl_relative_file_path']
 
 with open(os.path.join(ROOT_DIR, str(match['meta_file'])), 'r') as f:
-    pitch_data = json.load(f)
+    meta_data = json.load(f)
 
 # initialize the video capture object
 video_cap = cv2.VideoCapture(os.path.join(ROOT_DIR, str(match["video"])))
@@ -64,10 +64,10 @@ def main() -> int:
 def read_next_frames():
     global frame_count
 
-    number_of_frames_to_read = 100  # Number of frames to read
+    number_of_frames_to_read = int(match['number_of_seconds_to_read'] * meta_data["fps"])
     frames = []
     detections_chunk = []
-    key_points = []
+    key_point_chunk = []
 
     for i in range(number_of_frames_to_read):
         ret, frame = video_cap.read()
@@ -77,7 +77,10 @@ def read_next_frames():
 
         frames.append(frame)
         results = soccer_YOLOX.read_frame(frame)
-        key_points.append(soccer_YOLOX.find_keypoint(frame))
+
+        key_points = soccer_YOLOX.find_keypoint(frame)
+
+        key_point_chunk.append(key_points)
 
         detections_chunk.append(sv.Detections.from_ultralytics(results))
 
@@ -95,7 +98,12 @@ def read_next_frames():
 
     for i, detections in enumerate(detections_chunk):
 
-        detection_frame = calculate_detection_frame(detections, frame_count, key_points[i])
+        try:
+            detection_frame = calculate_detection_frame(detections, frame_count, key_point_chunk[i])
+        except ValueError as error:
+            print('Error: ' + repr(error))
+            frame_count += 1
+            continue
 
         output_detection_frame(detection_frame, os.path.join(ROOT_DIR, str(jsonl_file_path)))
 
@@ -111,8 +119,8 @@ def read_next_frames():
         label_annotator.annotate(
             annotated_frame, detections=detections, labels=labels)
 
-        pitch_length = pitch_data["pitchLength"]
-        pitch_width = pitch_data["pitchWidth"]
+        pitch_length = meta_data["pitchLength"]
+        pitch_width = meta_data["pitchWidth"]
 
         if config['show_output_overlay']:
             annotated_frame = draw_overlay(SoccerPitchConfiguration(width=pitch_width, length=pitch_length),
