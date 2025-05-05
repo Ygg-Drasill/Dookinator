@@ -100,8 +100,8 @@ def read_next_frames():
 
         try:
             detection_frame = calculate_detection_frame(detections, frame_count, key_point_chunk[i])
-        except Exception as error:
-            print('Caught this error: ' + repr(error))
+        except ValueError as error:
+            print('Error: ' + repr(error))
             frame_count += 1
             continue
 
