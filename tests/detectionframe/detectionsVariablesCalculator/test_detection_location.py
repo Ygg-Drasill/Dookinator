@@ -15,13 +15,15 @@ def mock_data():
 @pytest.fixture
 def mock_keypoints():
     keypoints = MagicMock()
-    # Create fake keypoints that pass the mask filter
     keypoints.xy = [
         np.array([
             [10.0, 20.0],
             [30.0, 40.0],
             [0.5, 0.5],
         ])
+    ]
+    keypoints.confidence = [
+        np.array([0.9, 0.8, 0.4])
     ]
     return keypoints
 
@@ -37,17 +39,24 @@ def mock_vertices():
 @patch("src.detectionframe.detectionsVariablesCalculator.detection_location.ViewTransformer")
 @patch("src.detectionframe.detectionsVariablesCalculator.detection_location.SoccerPitchConfiguration")
 @patch("src.detectionframe.detectionsVariablesCalculator.detection_location.load_pitch_data")
+@patch("src.detectionframe.detectionsVariablesCalculator.detection_location.key_point_saver")
 def test_get_location_of_bounding_box(
-    mock_load_pitch_data,
-    mock_config_class,
-    mock_transformer_class,
-    mock_keypoints,
-    mock_vertices
+        mock_key_point_saver,
+        mock_load_pitch_data,
+        mock_config_class,
+        mock_transformer_class,
+        mock_keypoints,
+        mock_vertices
 ):
     mock_load_pitch_data.return_value = {
         "pitchLength": 105,
         "pitchWidth": 68
     }
+
+    mock_key_point_saver.load_good_key_points.return_value = [
+        np.array([15.0, 25.0], dtype=np.float32),
+        mock_keypoints
+    ]
 
     mock_config_instance = MagicMock()
     mock_config_instance.vertices = mock_vertices
