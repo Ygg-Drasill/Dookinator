@@ -73,6 +73,6 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
     transformed_xy = transformer.transform_points(point=xy)[0][0]
 
     transformed_xy[0] = transformed_xy[0] - (pitch_length / 2)
-    transformed_xy[1] = transformed_xy[1] - (pitch_width / 2)
+    transformed_xy[1] = (pitch_width / 2) - transformed_xy[1]
 
     return transformed_xy
