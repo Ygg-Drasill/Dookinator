@@ -3,14 +3,15 @@ import os
 import numpy as np
 import yaml
 import supervision as sv
-from numpy.f2py.auxfuncs import throw_error
 
 from src.definitions import CONFIG_PATH, ROOT_DIR
 from src.fieldPitch.KeyPointSaver import KeyPointSaver
 from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
+from src.fieldPitch.KeyPointsManager import KeyPointsManager
 from src.fieldPitch.view import ViewTransformer
 
 key_point_saver = KeyPointSaver()
+key_points_manager = KeyPointsManager(10)
 
 def load_pitch_data():
     with open(CONFIG_PATH, 'r') as file:
@@ -33,6 +34,9 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
         np.ndarray: A 1D NumPy array with the real position of the player.
     """
 
+    if len(key_points.xy) == 0 or key_points.xy[0].size == 0:
+        raise ValueError("key_points.xy is empty or improperly structured.")
+
     data = load_pitch_data()
 
     pitch_length = data["pitchLength"]
@@ -43,7 +47,6 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
     mask = (
             (key_points.xy[0][:, 0] > 1)
             & (key_points.xy[0][:, 1] > 1)
-            & (key_points.confidence[0] > 0.5)
     )
 
     #check if there are 3 or fewer trues
@@ -56,21 +59,17 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
             mask = (
                     (key_points.xy[0][:, 0] > 1)
                     & (key_points.xy[0][:, 1] > 1)
-                    & (key_points.confidence[0] > 0.5)
             )
         else:
             raise ValueError('No good key points found for given frame')
     else:
         key_point_saver.save_good_key_points(xy, key_points)
 
-    transformer = ViewTransformer(
-        source=key_points.xy[0][mask].astype(np.float32),
-        target=np.array(soccer_field_config.vertices)[mask].astype(np.float32)
-    )
+    key_points_manager.add_new_key_point(key_points.xy[0].astype(np.float32))
 
     xy = np.float32(xy)
 
-    transformed_xy = transformer.transform_points(point=xy)[0][0]
+    transformed_xy = key_points_manager.get_transformer(soccer_field_config).transform_points(point=xy)[0][0]
 
     transformed_xy[0] = transformed_xy[0] - (pitch_width / 2)
     transformed_xy[1] = transformed_xy[1] - (pitch_length / 2)
