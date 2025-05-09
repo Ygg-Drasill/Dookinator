@@ -49,16 +49,9 @@ soccer_video_writer = SoccerVideoWriter()
 
 def main() -> int:
 
-    #while True:
-
     read_next_frames()
 
-    #if cv2.waitKey(1) == ord("q"):
-        #break
-
-    pass
     video_cap.release()
-    #cv2.destroyAllWindows()
     return 0
 
 def read_next_frames():
@@ -127,8 +120,6 @@ def read_next_frames():
                                            annotated_frame, detection_frame, scale=3)
 
         soccer_video_writer.write_frame(annotated_frame)
-        # show the frame to our screen
-        #cv2.imshow("Frame", annotated_frame)
 
         frame_count += 1
 

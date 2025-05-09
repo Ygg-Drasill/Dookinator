@@ -35,14 +35,10 @@ def calculate_detection_frame(detections: Detections, frame_idx: int, keypoints:
             bbox = detections.xyxy[i]  # [x1, y1, x2, y2]
             x1, y1, x2, y2 = bbox
 
-            # Coordinates of the bottom edge
-            bottom_edge = [(x1, y2), (x2, y2)]
-
             midpoint = np.array([(x1 + x2) / 2, y2])
 
             location = get_location_of_bounding_box(midpoint, keypoints)
 
-            # just set for testing
             speed = 0
 
             ball_detection = BallDetectionFrame(np.array(location), speed)
@@ -51,14 +47,10 @@ def calculate_detection_frame(detections: Detections, frame_idx: int, keypoints:
             bbox = detections.xyxy[i]  # [x1, y1, x2, y2]
             x1, y1, x2, y2 = bbox
 
-            # Coordinates of the bottom edge
-            bottom_edge = [(x1, y2), (x2, y2)]
-
             midpoint = np.array([(x1 + x2) / 2, y2])
 
             location = get_location_of_bounding_box(midpoint, keypoints)
 
-            # just set for testing
             speed = 0
             player_id = "0"
             number = 0
@@ -70,10 +62,6 @@ def calculate_detection_frame(detections: Detections, frame_idx: int, keypoints:
                 away_player_detections.append(player)
             if detections["player_team"][i] == 1:
                 home_player_detections.append(player)
-
         pass
-
-    # spilt up in teams
-
 
     return GameDetectionFrame(period, frame_idx, game_clock, wall_clock, np.array(home_player_detections), np.array(away_player_detections), ball_detection, live, last_touch)
