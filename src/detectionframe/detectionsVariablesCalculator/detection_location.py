@@ -55,11 +55,6 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
         if len(good_values) > 0:
             xy = good_values[0]
             key_points = good_values[1]
-
-            mask = (
-                    (key_points.xy[0][:, 0] > 1)
-                    & (key_points.xy[0][:, 1] > 1)
-            )
         else:
             raise ValueError('No good key points found for given frame')
     else:
