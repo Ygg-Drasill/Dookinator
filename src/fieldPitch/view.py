@@ -26,6 +26,8 @@ class ViewTransformer:
             raise ValueError("Source and target must have the same shape.")
         if source.shape[1] != 2:
             raise ValueError("Source and target points must be 2D coordinates.")
+        if source.shape[0] < 4:
+            raise ValueError("At least 4 corresponding points are required to compute homography.")
 
         source = source.astype(np.float32)
         target = target.astype(np.float32)

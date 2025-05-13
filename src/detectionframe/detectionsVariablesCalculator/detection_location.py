@@ -8,7 +8,6 @@ from src.definitions import CONFIG_PATH, ROOT_DIR
 from src.fieldPitch.KeyPointSaver import KeyPointSaver
 from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
 from src.fieldPitch.KeyPointsManager import KeyPointsManager
-from src.fieldPitch.view import ViewTransformer
 
 key_point_saver = KeyPointSaver()
 key_points_manager = KeyPointsManager(10)
