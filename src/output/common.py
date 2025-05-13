@@ -173,8 +173,8 @@ def read_players(config: SoccerPitchConfiguration, pitch: np.ndarray, players: n
     for player in players:
         center_of_circle = player.xyz[:2]
 
-        real_width = (np.take(center_of_circle, 0) * scale) + padding + scaled_width / 2
-        real_height = (np.take(center_of_circle, 1) * scale) + padding + scaled_length / 2
+        real_width = (np.take(center_of_circle, 0) * scale) + padding + scaled_length / 2
+        real_height = -(np.take(center_of_circle, 1) * scale) + padding + scaled_width / 2
 
         new_pitch = cv2.circle(pitch, (int(real_width), int(real_height)), 4, color, -1)
         pass
