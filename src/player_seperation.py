@@ -104,12 +104,22 @@ def player_separation(frames, detections_chunk) -> Iterator[Detections]:
     color_lookups = []
 
     for i, frame in enumerate(frames):
+
+        if i == 0:
+            sorted_indices = np.argsort(detections_chunk[i].xyxy[:, 0])  # sort by x_min
+            sorted_detections = detections_chunk[i][sorted_indices]
+
+            detections_chunk[i] = sorted_detections
+
+            pass
+
         crops += get_crops(frame, detections_chunk[i][detections_chunk[i].class_id == PLAYER_CLASS_ID])
 
 
     team_classifier.fit(crops)
 
     for i, frame in enumerate(frames):
+
         players = detections_chunk[i][detections_chunk[i].class_id == PLAYER_CLASS_ID]
         crops = get_crops(frame, players)
         players_team_id = team_classifier.predict(crops)
