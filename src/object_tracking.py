@@ -2,6 +2,7 @@ import json
 import os
 import sys
 
+import numpy as np
 import yaml
 
 import cv2
@@ -77,9 +78,18 @@ def read_next_frames():
 
         detections_chunk.append(sv.Detections.from_ultralytics(results))
 
+        ball_mask = detections_chunk[i].class_id == 0
+        ball_detections = detections_chunk[i][ball_mask]
+        ball_detections.tracker_id = np.full(len(ball_detections), -1, dtype=int)
+
         detections_chunk[i] = filter_detections(detections_chunk[i])
 
         detections_chunk[i] = tracker.update_with_detections(detections_chunk[i])
+
+        ball_present_mask = detections_chunk[i].class_id == 0
+
+        if len(ball_detections) > 0 and not np.any(ball_present_mask):
+            detections_chunk[i] = sv.Detections.merge([detections_chunk[i], ball_detections])
 
         pass
 
