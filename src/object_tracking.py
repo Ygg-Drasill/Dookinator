@@ -112,7 +112,7 @@ def read_next_frames():
 
         # Create labels with tracker IDs
         labels = [
-            f"#{tracker_id} + {team}"
+            f"id: {tracker_id} + {'home_team' if team == 0 else 'away_team'}"
             for j, (tracker_id, team) in enumerate(zip(detections.tracker_id, detections["player_team"]))
         ]
 
