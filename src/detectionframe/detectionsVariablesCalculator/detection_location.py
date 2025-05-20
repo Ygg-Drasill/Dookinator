@@ -1,16 +1,18 @@
 import json
 import os
+
 import numpy as np
-import yaml
 import supervision as sv
+import yaml
 
 from src.definitions import CONFIG_PATH, ROOT_DIR
 from src.fieldPitch.KeyPointSaver import KeyPointSaver
-from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
 from src.fieldPitch.KeyPointsManager import KeyPointsManager
+from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
 
 key_point_saver = KeyPointSaver()
 key_points_manager = KeyPointsManager(10)
+no_keypoints_detected = 0
 
 def load_pitch_data():
     with open(CONFIG_PATH, 'r') as file:
@@ -32,6 +34,7 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
     Returns:
         np.ndarray: A 1D NumPy array with the real position of the player.
     """
+    global no_keypoints_detected, counter
 
     if len(key_points.xy) == 0 or key_points.xy[0].size == 0:
         raise ValueError("key_points.xy is empty or improperly structured.")
@@ -48,8 +51,10 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
             & (key_points.xy[0][:, 1] > 1)
     )
 
+    counter = counter + 1
     #check if there are 3 or fewer trues
     if mask.sum() <= 3:
+        no_keypoints_detected = no_keypoints_detected + 1
         good_values = key_point_saver.load_good_key_points()
         if len(good_values) > 0:
             xy = good_values[0]
@@ -68,4 +73,5 @@ def get_location_of_bounding_box(xy: np.ndarray, key_points: sv.KeyPoints) -> np
     transformed_xy[0] = transformed_xy[0] - (pitch_length / 2)
     transformed_xy[1] = (pitch_width / 2) - transformed_xy[1]
 
+    print("The number of keypoints not detected:" + str(no_keypoints_detected) + "counter:" + str(counter))
     return transformed_xy

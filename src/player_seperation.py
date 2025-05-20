@@ -102,7 +102,7 @@ class TeamClassifier:
 device = "cuda" if torch.cuda.is_available() else "cpu"
 team_classifier = TeamClassifier(device=device)
 
-def player_separation(frames, detections_chunk) -> Iterator[Detections]:
+def player_separation(frames, detections_chunk):
     crops = []
     PLAYER_CLASS_ID = yolo['selected_class_ids']['player']['id']
     GOALKEEPER_CLASS_ID = yolo['selected_class_ids']['goalkeeper']['id']
@@ -143,7 +143,7 @@ def player_separation(frames, detections_chunk) -> Iterator[Detections]:
         color_lookups.append(color_lookup)
         detections_chunk[i]["player_team"] = color_lookups[i]
 
-        yield detections_chunk[i]
+    return detections_chunk
 
 def get_crops(frame: np.ndarray, detections: sv.Detections) -> List[np.ndarray]:
     """

@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 
 import numpy as np
 import yaml
@@ -49,14 +50,22 @@ frame_count = 0
 soccer_video_writer = SoccerVideoWriter()
 
 def main() -> int:
+    global start_time, time_detections, time_seperation
+    start_time = time.time()
 
     read_next_frames()
 
     video_cap.release()
+
+    print("--- %s seconds detections ---" % time_detections)
+    print("--- %s seconds separation ---" % time_seperation)
+    print("--- %s seconds overall ---" % (time.time() - start_time))
+
     return 0
 
 def read_next_frames():
     global frame_count
+    global time_detections, time_seperation
 
     number_of_frames_to_read = int(match['number_of_seconds_to_read'] * meta_data["fps"])
     frames = []
@@ -93,7 +102,10 @@ def read_next_frames():
 
         pass
 
+    time_detections = time.time() - start_time
     detections_chunk = player_separation(frames, detections_chunk)
+    time_seperation = time.time() - start_time
+
 
     ######################################
     # Output
