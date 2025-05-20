@@ -13,6 +13,7 @@ from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
 key_point_saver = KeyPointSaver()
 key_points_manager = KeyPointsManager(10)
 no_keypoints_detected = 0
+counter = 0
 
 def load_pitch_data():
     with open(CONFIG_PATH, 'r') as file:
