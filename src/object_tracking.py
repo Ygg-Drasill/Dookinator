@@ -16,7 +16,7 @@ from src.fieldPitch.SoccerPitchConfiguration import SoccerPitchConfiguration
 from src.output.common import draw_overlay
 from src.output.output_video_file import SoccerVideoWriter
 from src.player_seperation import player_separation
-from yolox.yolo import SoccerYOLOX
+from src.yolox.yolo import SoccerYOLOX
 
 with open(CONFIG_PATH, 'r') as file:
     config = yaml.safe_load(file)  # Read the file once
