@@ -1,5 +1,13 @@
 # Dookinator
 
+## Example run
+This is an example of the program's output.
+
+### Before
+![Demo](example-video-before.gif)
+### After
+![Demo](example-video.gif)
+
 ## Install
 pip install -r requirements.txt
 
