@@ -1,4 +1,4 @@
-# Dookinator
+# Singe-camera_Football_Player_Tracking
 
 ## Example run
 This is an example of the program's output.
